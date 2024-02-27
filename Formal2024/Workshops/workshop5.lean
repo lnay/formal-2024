@@ -279,8 +279,9 @@ def NatEven : Type := { n : Nat // ∃r, n=2*r }
 
 -- Now define a function from `ℕ → NatEven` that takes a natural number `n` and returns `2 * n`.
 
-def double (n : ℕ) : NatEven :=
-  ⟨2*n, ⟨n, rfl⟩⟩
+def double (n : ℕ) : NatEven := by
+  refine ⟨2*n, ⟨n, ?_⟩⟩
+  rfl
 
 section
 
