@@ -24,8 +24,14 @@ namespace Week2
 -- Lean treats the universal quantifier as an implication
 -- Implications are grouped on the RIGHT (N.B. this is different from the usual convention for operations like +, *, ...)
 
-theorem my_lemma : ∀ x y ε : ℝ, 0 < ε → ε ≤ 1 → |x| < ε → |y| < ε → |x * y| < ε :=
-  sorry
+theorem my_lemma : ∀ x y ε : ℝ, 0 < ε → ε ≤ 1 → |x| < ε → |y| < ε → |x * y| < ε := by
+  intro x y ε
+  intro eps_pos eps_lte_1 modx_lt_eps mody_lt_eps
+  exact calc
+    |x * y| < ε*ε := by sorry
+    _  < ε := by sorry
+  tada
+
 
 -- Lean is all about types, and checking that something is of the right type
 section
@@ -147,23 +153,33 @@ def FnLb (f : ℝ → ℝ) (a : ℝ) : Prop :=
 
 
 -- 1.  Prove this using `intro`
+#check add_le_add
 
-example (hfa : FnLb f a) (hgb : FnLb g b) : FnLb (fun x ↦ f x + g x) (a + b) :=
-  sorry
+example (hfa : FnLb f a) (hgb : FnLb g b) : FnLb (fun x ↦ f x + g x) (a + b) := by
+  intro x
+  specialize hfa x
+  specialize hgb x
+  exact add_le_add hfa hgb
+  tada
 
 -- 2. Now try proving it without using any tactic, writing a proof term
 
 example (hfa : FnLb f a) (hgb : FnLb g b) : FnLb (fun x ↦ f x + g x) (a + b) :=
-  sorry
+  fun x ↦ add_le_add (hfa x) (hgb x)
 
 -- 3. Here you may need the theorem `mul_nonneg`
 
 #check mul_nonneg
 
-example (nnf : FnLb f 0) (nng : FnLb g 0) : FnLb (fun x ↦ f x * g x) 0 :=
-  sorry
+example (nnf : FnLb f 0) (nng : FnLb g 0) : FnLb (fun x ↦ f x * g x) 0 := by
+  intro x
+  dsimp
+  apply mul_nonneg
+  exact nnf x
+  exact nng x
+  tada
 
-end
+
 
 
 
@@ -222,7 +238,10 @@ open Function
 
 
 example {c : ℝ} : Surjective fun x ↦ x + c := by
-  sorry
+  intro x
+  dsimp
+  use x - c
+  norm_num
 
 -- 5. Now the exist statement is given as hypothesis. Prove the goal using `rcases`
 section
@@ -230,7 +249,13 @@ section
 variable (f g : ℝ → ℝ )
 
 example (surjg : Surjective g) (surjf : Surjective f) : Surjective fun x ↦ g (f x) := by
-  sorry
+  intro z
+  dsimp
+  rcases surjg z with ⟨y, ymapstoz⟩
+  rcases surjf y with ⟨x, xmapstoy⟩
+  use x
+  rw [xmapstoy, ymapstoz]
+  tada
 
 
 end
@@ -288,16 +313,25 @@ def EvenFun (f : ℝ → ℝ) :=
 
 example : ¬EvenFun fun x => 2 * x := by
 --You will need to make the definition of `EvenFun` explicit first, you can do it by writing `unfold EvenFun`
-  sorry
+  unfold EvenFun
+  push_neg
+  use 1
+  norm_num
+  tada
 
 
 -- 7. Prove this using `by_contra`
 
 example (P Q : Prop) (h : ¬Q → ¬P) : P → Q := by
-  sorry
+  by_contra g
+  push_neg at g
+  exact h g.2 g.1
+  tada
 
 
 -- 8. Give a shorter proof using `contrapose`
 
 example (P Q : Prop) (h : ¬Q → ¬P) : P → Q := by
-  sorry
+  contrapose
+  exact h
+  tada
