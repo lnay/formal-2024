@@ -191,15 +191,50 @@ example : s ∩ t = t ∩ s := by
 
 -- 1
 example : s ∩ (s ∪ t) = s := by
-  sorry
+  ext x
+  constructor
+  · intro lhs
+    exact lhs.1
+  · intro rhs
+    use rhs
+    left
+    exact rhs
+  tada
+
 
 -- 2
 example : s ∪ s ∩ t = s := by
-  sorry
+  ext x
+  constructor
+  · intro lhs
+    rcases lhs with lhs1 | lhs2
+    · exact lhs1
+    · exact lhs2.1
+  · intro rhs
+    left
+    exact rhs
+  tada
 
 -- 3
 example : s \ t ∪ t = s ∪ t := by
-  sorry
+  ext x
+  constructor
+  · intro lhs
+    rcases lhs with lhs1 | lhs2
+    · left
+      exact lhs1.1
+    · right
+      exact lhs2
+  · intro rhs
+    rcases rhs with rhs1 | rhs2
+    · by_cases h: x ∈ t
+      · right
+        exact h
+      · left
+        exact ⟨rhs1, h⟩
+    · right
+      exact rhs2
+  tada
 
 -- 4
 example : s \ t ∪ t \ s = (s ∪ t) \ (s ∩ t) := by
@@ -250,7 +285,20 @@ def oddSet : Set ℕ :=
 
 -- 6
 example : { n | Nat.Prime n } ∩ { n | n > 2 } ⊆ oddSet := by
-  sorry
+  intro x hx
+  have x_is_prime := hx.1
+  have x_gt_2 := hx.2
+  clear hx
+  unfold oddSet
+  dsimp
+  by_contra x_is_even
+  unfold Even at x_is_even -- delete
+  rcases x_is_even with ⟨r, x_is_2r⟩
+  have temp : x = 2*r := by
+    rw [x_is_2r]
+    ring
+  sorry -- looking at solution, there's a theorem that basically does this
+
 
 -- The notation `∀ x ∈ t` means `∀ x, x ∈ t → ... `, and `∃ x ∈ t` means `∃ x, x ∈ t → ... `
 
