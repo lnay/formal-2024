@@ -396,13 +396,33 @@ inductive odd : ℕ → Prop where
 #check odd.rec
 
 lemma odd_of_succ_even (n : ℕ) : even n → odd (n + 1) := by
-  sorry
+  intro n_is_even
+  induction n_is_even with
+  | zero => exact odd.one
+  | @add_two a _ h => exact odd.add_two h
+  tada
 
-lemma even_of_succ_odd (n : ℕ) : even n → odd (n + 1) := by
-  sorry
+lemma even_of_succ_odd (n : ℕ) : odd n → even (n + 1) := by
+  intro n_is_odd
+  induction n_is_odd with
+  | one => exact even.add_two even.zero
+  | @add_two a _ h => exact even.add_two h
+  tada
+
+#check ℕ
 
 lemma even_or_odd (n : ℕ) : even n ∨ odd n := by
-  sorry
+  induction n with
+  | zero =>
+    left
+    exact even.zero
+  | succ m m_is_odd_or_even =>
+    rcases m_is_odd_or_even with m_is_even | m_is_odd
+    · right
+      exact @odd_of_succ_even m m_is_even
+    · left
+      exact @even_of_succ_odd m m_is_odd
+  tada
 
 -- If you would like some more practice, come up with your own lemmas about how `even` and `odd`
 -- interact with other operations on the natural numbers. For example, you could prove that the sum
