@@ -275,13 +275,12 @@ variable (n : ℕ+)
 
 -- 4. Define the subtype of even natural numbers.
 
-def NatEven : Type := sorry
+def NatEven : Type := { n : Nat // ∃r, n=2*r }
 
 -- Now define a function from `ℕ → NatEven` that takes a natural number `n` and returns `2 * n`.
 
-def double (n : ℕ) : NatEven := sorry
-
-end
+def double (n : ℕ) : NatEven :=
+  ⟨2*n, ⟨n, rfl⟩⟩
 
 section
 
