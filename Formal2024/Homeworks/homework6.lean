@@ -54,8 +54,45 @@ def midpoint (a b : StandardTwoSimplex) : StandardTwoSimplex
 -- in analogy to the midpoint function above.
 
 def weightedAverage (lambda : Real) (lambda_nonneg : 0 ≤ lambda) (lambda_le : lambda ≤ 1)
-    (a b : StandardTwoSimplex) : StandardTwoSimplex :=
-  sorry
+    (a b : StandardTwoSimplex) : StandardTwoSimplex
+    where
+  x := a.x * lambda + b.x * (1 - lambda)
+  y := a.y * lambda + b.y * (1 - lambda)
+  z := a.z * lambda + b.z * (1 - lambda)
+  x_nonneg := by
+    apply add_nonneg
+    · apply mul_nonneg
+      · exact a.x_nonneg
+      · exact lambda_nonneg
+    · apply mul_nonneg
+      · exact b.x_nonneg
+      · linarith
+  y_nonneg := by
+    apply add_nonneg
+    · apply mul_nonneg
+      · exact a.y_nonneg
+      · exact lambda_nonneg
+    · apply mul_nonneg
+      · exact b.y_nonneg
+      · linarith
+  z_nonneg := by
+    have b_z_nonneg := b.z_nonneg
+    have a_z_nonneg := a.z_nonneg
+    apply add_nonneg
+    repeat {
+      apply mul_nonneg
+      · assumption
+      · linarith
+    }
+  sum_eq := by
+    have a_sum := a.sum_eq
+    have b_sum := b.sum_eq
+    have intermediate : (a.x + a.y + a.z) * lambda + (b.x + b.y + b.z) * (1 - lambda) = 1
+    · rw [a_sum, b_sum]
+      ring
+    · nth_rw 4 [← intermediate]
+      ring
+    tada
 
 end -- end the `noncomputable section`
 
