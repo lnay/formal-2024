@@ -172,12 +172,14 @@ namespace SpecialPoint
 
 def add : SpecialPoint → SpecialPoint → SpecialPoint := by
   intro p1 p2
+  have cond1 := p1.gradientEqn
+  have cond2 := p2.gradientEqn
   have output: SpecialPoint := ⟨p1.toPoint.add p2.toPoint, p1.toRGBValue.add p2.toRGBValue, ?_⟩
   · exact output
   · unfold Point.add
     unfold RGBValue.add
     dsimp
-    rw [p1.gradientEqn, p2.gradientEqn]
+    rw [p1.gradientEqn, cond2]
   tada
 
 end SpecialPoint
