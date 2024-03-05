@@ -96,7 +96,12 @@ structure RGBValue where
   green : ℕ
   blue : ℕ
 
+def RGBValue.add : RGBValue → RGBValue → RGBValue :=
+  λ a b => ⟨a.red + b.red, a.green + b.green, a.blue + b.blue⟩
+
 structure RGBPoint (α : Type*) extends Point α, RGBValue
+
+def rgb_point: RGBPoint ℕ := ⟨⟨1,2⟩,⟨0,0,0⟩⟩
 
 #print prefix RGBPoint
 #check RGBPoint.mk
@@ -106,6 +111,10 @@ def cp := RGBPoint.mk (Point.mk 1 2) (RGBValue.mk 10 20 30)
 
 #eval cp.x
 #eval cp.red
+#eval rgb_point.toPoint
+#eval rgb_point.toPoint.x
+#eval rgb_point.x
+
 
 -- We can use the fields of a structure to specify constraints that must be satisfied.
 
@@ -140,7 +149,13 @@ structure Group₁ (α : Type*) where
 namespace Point
 
 theorem add_assoc (a b c : Point ℕ) : (a.add b).add c = a.add (b.add c) := by
-  sorry
+  ext
+  repeat {
+    unfold Point.add
+    dsimp
+    apply Nat.add_assoc
+  }
+  tada
 
 end Point
 
@@ -153,8 +168,17 @@ structure SpecialPoint extends Point ℕ, RGBValue where
 
 namespace SpecialPoint
 
-def add : SpecialPoint → SpecialPoint → SpecialPoint :=
-sorry
+#check SpecialPoint.mk
+
+def add : SpecialPoint → SpecialPoint → SpecialPoint := by
+  intro p1 p2
+  have output: SpecialPoint := ⟨p1.toPoint.add p2.toPoint, p1.toRGBValue.add p2.toRGBValue, ?_⟩
+  · exact output
+  · unfold Point.add
+    unfold RGBValue.add
+    dsimp
+    rw [p1.gradientEqn, p2.gradientEqn]
+  tada
 
 end SpecialPoint
 
@@ -262,6 +286,10 @@ end
 
 -- 3. Modify the definition of `Point.add` so that it works for any type `α` which supports addition.
 
+instance {α : Type*} [Add α] : Add (Point α) := {
+  add := fun p1 p2 ↦ ⟨p1.x + p2.x, p1.y + p2.y⟩
+}
+
 -- Hint: Try to find a suitable class in Mathlib. Whatever it is, it had better be implemented by ℕ.
 -- [https://leanprover-community.github.io/mathlib-overview.html]
 
@@ -274,10 +302,19 @@ class MySemigroup (G : Type u) extends Mul G : Type u :=
 
 namespace MySemigroup
 
-instance NatSemigroup : MySemigroup ℕ :=
-  sorry
+instance NatSemigroup : MySemigroup ℕ := {
+  mul_assoc := by
+    intro a b c
+    apply Nat.mul_assoc
+    tada
+}
 
-instance ProdSemigroup {G : Type u} {H : Type v} [MySemigroup G] [MySemigroup H] : MySemigroup (G × H) :=
-  sorry
+instance ProdSemigroup {G : Type u} {H : Type v} [MySemigroup G] [MySemigroup H] : MySemigroup (G × H) := {
+  mul_assoc := by
+    intro a b c
+    ext
+    repeat apply mul_assoc
+    tada
+}
 
 end MySemigroup
